@@ -155,7 +155,7 @@
     }
 
     .title-medium {
-      font-size: 10px;
+      font-size: 0.6rem;
       font-weight: 500;
       letter-spacing: 0.04em;
       text-shadow: 0 4px 25px rgba(0, 0, 0, 0.85);
@@ -328,9 +328,9 @@
 <body>
 
   <!-- MUSIC CONTROL BUTTON -->
-  <button class="music-control" id="musicToggle" aria-label="Toggle music">
-    <span class="icon" id="musicIcon">🔇</span>
-    <span id="musicLabel">Off</span>
+  <button class="music-control" id="musicToggle" onclick="toggleMusic()" aria-label="Toggle music">
+    <span class="icon" id="musicIcon">🔊</span>
+    <span id="musicLabel">On</span>
   </button>
 
   <div class="scroll-wall" id="scrollWall">
@@ -347,18 +347,14 @@
 
       <div class="overlay">
         <div class="text-block title-medium" style="margin-top: 22rem;">
-          ✦ You are warmly invited to our wedding celebration. ✦
+          ✦You are warmly invited to our wedding celebration✦
         </div>
 
         <div class="names-wrapper">
           <div class="names-row">
             <span class="name-left">Eslam</span>
+            <div class="names-ampersand">&amp;</div>
             <span class="name-right">Enas</span>
-          </div>
-          <div class="names-ampersand">&amp;</div>
-          <div class="names-surnames">
-            <span class="surname-left">Ahmad</span>
-            <span class="surname-right">Ibrahim</span>
           </div>
         </div>
 
@@ -368,13 +364,13 @@
 
         <div class="spacer-md"></div>
 
-        <div class="text-block body-text-sm" style="max-width:75%; margin-top: 850px; line-height:1.7;">
+        <div class="text-block body-text-sm" style="max-width:75%; margin-top: 180vw; line-height:1.7;">
           Two hearts found each other.
           One promise brought them together.
           Forever begins today.
         </div>
 
-        <div class="spacer-md" style="margin-top: 620px;"></div>
+        <div class="spacer-md" style="margin-top: 120vw;"></div>
 
         <a href="https://maps.app.goo.gl/zCgQ7Ra85pLHMMda6?g_st=aw" 
            target="_blank" 
@@ -383,7 +379,7 @@
            📍 View location on map
         </a>
 
-        <div class="spacer-md" style="margin-top: 120px;"></div>
+        <div class="spacer-md" style="margin-top: 18vw;"></div>
 
         <div class="text-block date-large">
           7 August 2026
@@ -411,67 +407,62 @@
   </audio>
 
   <script>
-    // ---- SIMPLE MUSIC TOGGLE ----
-    (function() {
+    // ---- GLOBAL FUNCTIONS ----
+    function toggleMusic() {
       const audio = document.getElementById('bgMusic');
-      const toggleBtn = document.getElementById('musicToggle');
       const iconSpan = document.getElementById('musicIcon');
       const labelSpan = document.getElementById('musicLabel');
-
-      // Try to start audio
-      function startAudio() {
-        audio.play()
-          .then(() => {
-            iconSpan.textContent = '🔊';
-            labelSpan.textContent = 'On';
-            console.log('🎵 Music playing');
-          })
-          .catch((err) => {
-            console.log('⚠️ Click the music button to play');
-            iconSpan.textContent = '🔇';
-            labelSpan.textContent = 'Off';
-          });
-      }
-
-      // Toggle function
-      function toggleMusic() {
-        if (audio.paused) {
-          audio.play()
-            .then(() => {
-              iconSpan.textContent = '🔊';
-              labelSpan.textContent = 'On';
-              console.log('🎵 Music resumed');
-            })
-            .catch((err) => {
-              console.warn('Could not play:', err);
-              iconSpan.textContent = '🔇';
-              labelSpan.textContent = 'Off';
-            });
-        } else {
-          audio.pause();
+      
+      if (audio.paused) {
+        audio.play().then(() => {
+          iconSpan.textContent = '🔊';
+          labelSpan.textContent = 'On';
+          console.log('🔊 Music resumed');
+        }).catch((err) => {
+          console.warn('Could not play audio:', err);
           iconSpan.textContent = '🔇';
           labelSpan.textContent = 'Off';
-          console.log('🔇 Music paused');
-        }
+        });
+      } else {
+        audio.pause();
+        iconSpan.textContent = '🔇';
+        labelSpan.textContent = 'Off';
+        console.log('🔇 Music paused');
       }
+    }
 
-      // ---- BUTTON EVENT ----
-      toggleBtn.addEventListener('click', function(e) {
-        e.stopPropagation();
-        toggleMusic();
+    function handleImageError() {
+      console.warn('⚠️ invitation.png not found.');
+      const wrapper = document.getElementById('wallpaperWrapper');
+      const fb = wrapper.querySelector('.fallback-msg');
+      if (fb) fb.style.display = 'block';
+      wrapper.style.minHeight = '120vh';
+      wrapper.style.minWidth = '100vw';
+      wrapper.style.background = '#1a1a1f';
+      const img = document.getElementById('mainImage');
+      img.style.display = 'none';
+    }
+
+    // ---- AUTO-START MUSIC ----
+    (function() {
+      const audio = document.getElementById('bgMusic');
+      const iconSpan = document.getElementById('musicIcon');
+      const labelSpan = document.getElementById('musicLabel');
+      
+      // Try to autoplay immediately
+      audio.play().then(() => {
+        iconSpan.textContent = '🔊';
+        labelSpan.textContent = 'On';
+        console.log('🎵 Music autoplayed successfully');
+      }).catch((err) => {
+        console.log('⚠️ Autoplay blocked. User can click the music button.');
+        iconSpan.textContent = '🔇';
+        labelSpan.textContent = 'Off';
       });
+    })();
 
-      // ---- TRY AUTOPLAY ----
-      startAudio();
-
-      // ---- CLICK ANYWHERE TO START ----
-      document.addEventListener('click', function() {
-        if (audio.paused) {
-          startAudio();
-        }
-      }, { once: false });
-
-      // ---- COUNTDOWN ----
+    // ---- COUNTDOWN ----
+    (function() {
       const targetDate = new Date('2026-08-07T20:00:00').getTime();
       const countdownEl = document.getElementById('countdownDisplay');
 
@@ -498,23 +489,9 @@
       // ---- SCROLL RESET ----
       const wall = document.getElementById('scrollWall');
       if (wall) wall.scrollTo(0, 0);
-
-      // ---- IMAGE ERROR ----
-      function handleImageError() {
-        console.warn('⚠️ invitation.png not found.');
-        const wrapper = document.getElementById('wallpaperWrapper');
-        const fb = wrapper.querySelector('.fallback-msg');
-        if (fb) fb.style.display = 'block';
-        wrapper.style.minHeight = '120vh';
-        wrapper.style.minWidth = '100vw';
-        wrapper.style.background = '#1a1a1f';
-        const img = document.getElementById('mainImage');
-        img.style.display = 'none';
-      }
-      window.handleImageError = handleImageError;
-
-      console.log('🎵 Click anywhere or press the music button to play');
     })();
+
+    console.log('🎵 Page loaded. Music will autoplay if allowed.');
   </script>
 </body>
 </html>
