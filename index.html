@@ -328,9 +328,9 @@
 <body>
 
   <!-- MUSIC CONTROL BUTTON -->
-  <button class="music-control" id="musicToggle" onclick="toggleMusic()" aria-label="Toggle music">
-    <span class="icon" id="musicIcon">🔊</span>
-    <span id="musicLabel">On</span>
+  <button class="music-control" id="musicToggle" aria-label="Toggle music">
+    <span class="icon" id="musicIcon">🔇</span>
+    <span id="musicLabel">Off</span>
   </button>
 
   <div class="scroll-wall" id="scrollWall">
@@ -411,62 +411,67 @@
   </audio>
 
   <script>
-    // ---- GLOBAL FUNCTIONS ----
-    function toggleMusic() {
+    // ---- SIMPLE MUSIC TOGGLE ----
+    (function() {
       const audio = document.getElementById('bgMusic');
+      const toggleBtn = document.getElementById('musicToggle');
       const iconSpan = document.getElementById('musicIcon');
       const labelSpan = document.getElementById('musicLabel');
-      
-      if (audio.paused) {
-        audio.play().then(() => {
-          iconSpan.textContent = '🔊';
-          labelSpan.textContent = 'On';
-          console.log('🔊 Music resumed');
-        }).catch((err) => {
-          console.warn('Could not play audio:', err);
+
+      // Try to start audio
+      function startAudio() {
+        audio.play()
+          .then(() => {
+            iconSpan.textContent = '🔊';
+            labelSpan.textContent = 'On';
+            console.log('🎵 Music playing');
+          })
+          .catch((err) => {
+            console.log('⚠️ Click the music button to play');
+            iconSpan.textContent = '🔇';
+            labelSpan.textContent = 'Off';
+          });
+      }
+
+      // Toggle function
+      function toggleMusic() {
+        if (audio.paused) {
+          audio.play()
+            .then(() => {
+              iconSpan.textContent = '🔊';
+              labelSpan.textContent = 'On';
+              console.log('🎵 Music resumed');
+            })
+            .catch((err) => {
+              console.warn('Could not play:', err);
+              iconSpan.textContent = '🔇';
+              labelSpan.textContent = 'Off';
+            });
+        } else {
+          audio.pause();
           iconSpan.textContent = '🔇';
           labelSpan.textContent = 'Off';
-        });
-      } else {
-        audio.pause();
-        iconSpan.textContent = '🔇';
-        labelSpan.textContent = 'Off';
-        console.log('🔇 Music paused');
+          console.log('🔇 Music paused');
+        }
       }
-    }
 
-    function handleImageError() {
-      console.warn('⚠️ invitation.png not found.');
-      const wrapper = document.getElementById('wallpaperWrapper');
-      const fb = wrapper.querySelector('.fallback-msg');
-      if (fb) fb.style.display = 'block';
-      wrapper.style.minHeight = '120vh';
-      wrapper.style.minWidth = '100vw';
-      wrapper.style.background = '#1a1a1f';
-      const img = document.getElementById('mainImage');
-      img.style.display = 'none';
-    }
-
-    // ---- AUTO-START MUSIC ----
-    (function() {
-      const audio = document.getElementById('bgMusic');
-      const iconSpan = document.getElementById('musicIcon');
-      const labelSpan = document.getElementById('musicLabel');
-      
-      // Try to autoplay immediately
-      audio.play().then(() => {
-        iconSpan.textContent = '🔊';
-        labelSpan.textContent = 'On';
-        console.log('🎵 Music autoplayed successfully');
-      }).catch((err) => {
-        console.log('⚠️ Autoplay blocked. User can click the music button.');
-        iconSpan.textContent = '🔇';
-        labelSpan.textContent = 'Off';
+      // ---- BUTTON EVENT ----
+      toggleBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        toggleMusic();
       });
-    })();
 
-    // ---- COUNTDOWN ----
-    (function() {
+      // ---- TRY AUTOPLAY ----
+      startAudio();
+
+      // ---- CLICK ANYWHERE TO START ----
+      document.addEventListener('click', function() {
+        if (audio.paused) {
+          startAudio();
+        }
+      }, { once: false });
+
+      // ---- COUNTDOWN ----
       const targetDate = new Date('2026-08-07T20:00:00').getTime();
       const countdownEl = document.getElementById('countdownDisplay');
 
@@ -493,9 +498,23 @@
       // ---- SCROLL RESET ----
       const wall = document.getElementById('scrollWall');
       if (wall) wall.scrollTo(0, 0);
-    })();
 
-    console.log('🎵 Page loaded. Music will autoplay if allowed.');
+      // ---- IMAGE ERROR ----
+      function handleImageError() {
+        console.warn('⚠️ invitation.png not found.');
+        const wrapper = document.getElementById('wallpaperWrapper');
+        const fb = wrapper.querySelector('.fallback-msg');
+        if (fb) fb.style.display = 'block';
+        wrapper.style.minHeight = '120vh';
+        wrapper.style.minWidth = '100vw';
+        wrapper.style.background = '#1a1a1f';
+        const img = document.getElementById('mainImage');
+        img.style.display = 'none';
+      }
+      window.handleImageError = handleImageError;
+
+      console.log('🎵 Click anywhere or press the music button to play');
+    })();
   </script>
 </body>
 </html>
