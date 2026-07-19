@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>invitation · wallpaper with music</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #0b0b0e;
+      min-height: 100vh;
+      font-family: 'Georgia', 'Times New Roman', serif;
+      overflow: hidden;
+    }
+
+    .scroll-wall {
+      width: 100%;
+      height: 100vh;
+      overflow-y: auto;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scroll-behavior: smooth;
+      background: #141416;
+      display: flex;
+      align-items: flex-start;
+      justify-content: flex-start;
+      position: relative;
+    }
+
+    .wallpaper-wrapper {
+      position: relative;
+      display: inline-block;
+      width: 100vw;
+      min-width: 100vw;
+      min-height: 100vh;
+      flex-shrink: 0;
+    }
+
+    .wallpaper {
+      display: block;
+      width: 100vw;
+      height: auto;
+      min-width: 100vw;
+      max-width: none;
+      min-height: 100vh;
+      height: auto;
+      object-fit: contain;
+      background: #0f0f14;
+      image-rendering: auto;
+    }
+
+    .overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 5% 6%;
+      color: #000000;
+      text-shadow: 0 4px 20px rgba(0, 0, 0, 0.8), 0 2px 8px rgba(0, 0, 0, 0.9);
+      font-weight: 300;
+      letter-spacing: 0.03em;
+      line-height: 1.5;
+      text-align: center;
+    }
+
+    .overlay * {
+      pointer-events: auto;
+      max-width: 90%;
+    }
+
+    .text-block {
+      display: block;
+      width: 100%;
+      margin: 0.6rem 0;
+      padding: 0.2rem 0;
+    }
+
+    .title-large {
+      font-size: clamp(1.4rem, 5.5vw, 4.2rem);
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      text-shadow: 0 4px 30px rgba(0, 0, 0, 0.9);
+      margin-top: 1rem;
+    }
+
+    /* --- NEW: name layout with & between --- */
+    .names-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin: 0.3rem 0 0.6rem 0;
+      width: 100%;
+    }
+
+    .names-row {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: center;
+      gap: clamp(1.5rem, 6vw, 5rem);
+      width: 100%;
+      flex-wrap: wrap;
+    }
+
+    .name-left, .name-right {
+      font-size: clamp(1.6rem, 5vw, 4rem);
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      text-shadow: 0 4px 30px rgba(0, 0, 0, 0.9);
+      white-space: nowrap;
+    }
+
+    .names-ampersand {
+      font-size: clamp(1.4rem, 4vw, 3.2rem);
+      font-weight: 300;
+      letter-spacing: 0.1em;
+      text-shadow: 0 4px 30px rgba(0, 0, 0, 0.9);
+      padding: 0.1rem 0;
+      color: #000000;
+      opacity: 0.8;
+    }
+
+    .names-surnames {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: center;
+      gap: clamp(1.5rem, 6vw, 5rem);
+      padding-left: 10px;
+      width: 100%;
+      flex-wrap: wrap;
+      margin-top: -0.2rem;
+    }
+
+    .surname-left, .surname-right {
+      font-size: clamp(1.2rem, 4vw, 3.2rem);
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-shadow: 0 4px 30px rgba(0, 0, 0, 0.9);
+      white-space: nowrap;
+    }
+
+    .title-medium {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      text-shadow: 0 4px 25px rgba(0, 0, 0, 0.85);
+    }
+
+    .body-text {
+      font-size: clamp(0.85rem, 2.5vw, 1.6rem);
+      font-weight: 300;
+      line-height: 1.6;
+      text-shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
+      max-width: 80%;
+      margin: 0.4rem auto;
+    }
+
+    .body-text-sm {
+      font-size: 20px;
+      color: #b19114;
+      font-weight: 300;
+      line-height: 1.5;
+      text-shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
+      max-width: 80%;
+      margin: 0.3rem auto;
+    }
+
+    .date-large {
+      font-size: clamp(1.6rem, 5vw, 3.6rem);
+      font-weight: 600;
+      color: #b19114;
+      letter-spacing: 0.1em;
+      text-shadow: 0 4px 30px rgba(0, 0, 0, 0.9);
+      margin: 0.3rem 0;
+    }
+
+    .countdown {
+      font-size: clamp(1.2rem, 3.5vw, 2.8rem);
+      font-weight: 500;
+      color: #ffff;
+      letter-spacing: 0.08em;
+      text-shadow: 0 4px 25px rgba(0, 0, 0, 0.9);
+      background: rgba(0, 0, 0, 0.35);
+      backdrop-filter: blur(4px);
+      padding: 0.5rem 1.8rem;
+      border-radius: 60px;
+      display: inline-block;
+      margin: 0.6rem auto;
+      border: 1px solid rgba(44, 36, 22, 0.945);
+    }
+
+    .btn-map {
+      pointer-events: auto;
+      display: inline-block;
+      background: rgba(210, 180, 140, 0.2);
+      backdrop-filter: blur(8px);
+      border: 1.5px solid rgb(255, 215, 150);
+      color: #000000;
+      padding: 0.7rem 2.2rem;
+      border-radius: 60px;
+      font-size: clamp(0.9rem, 2.2vw, 1.5rem);
+      font-weight: 400;
+      letter-spacing: 0.06em;
+      text-decoration: none;
+      transition: all 0.25s ease;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+      margin: 0.6rem auto;
+      cursor: pointer;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+    }
+
+    .btn-map:hover {
+      background: rgb(210, 180, 140);
+      border-color: #f5e1c0;
+      transform: scale(1.03);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
+    }
+
+    .btn-map:active {
+      transform: scale(0.97);
+    }
+
+    .music-control {
+      position: fixed;
+      top: 1.2rem;
+      right: 1.2rem;
+      z-index: 100;
+      background: rgba(10, 10, 18, 0.65);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 215, 150, 0.25);
+      color: #f0e4d0;
+      padding: 0.6rem 1.2rem;
+      border-radius: 60px;
+      font-size: clamp(0.75rem, 1.4vw, 1rem);
+      font-family: system-ui, sans-serif;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.5);
+      pointer-events: auto;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .music-control:hover {
+      background: rgba(30, 28, 24, 0.8);
+      border-color: rgba(255, 215, 150, 0.5);
+      transform: scale(1.04);
+    }
+
+    .music-control .icon {
+      font-size: 1.2rem;
+      line-height: 1;
+    }
+
+    .spacer-sm { margin: 0.2rem 0; }
+    .spacer-md { margin: 0.6rem 0; }
+    .spacer-lg { margin: 1.2rem 0; }
+
+    .wallpaper-wrapper .fallback-msg {
+      display: none;
+    }
+
+    .scroll-hint {
+      position: fixed;
+      bottom: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(10, 10, 18, 0.6);
+      backdrop-filter: blur(6px);
+      padding: 0.4rem 1.4rem;
+      border-radius: 60px;
+      color: #b9a78d;
+      font-size: 0.75rem;
+      letter-spacing: 0.4px;
+      border: 1px solid #3e3529;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+      pointer-events: none;
+      white-space: nowrap;
+      opacity: 0.5;
+      z-index: 20;
+      font-family: system-ui, sans-serif;
+    }
+
+    /* --- TAP TO START OVERLAY --- */
+    .start-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(8px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+      cursor: pointer;
+      transition: opacity 0.8s ease, visibility 0.8s ease;
+      color: #f5efe6;
+      text-align: center;
+      padding: 2rem;
+    }
+
+    .start-overlay.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .start-overlay .icon-big {
+      font-size: clamp(4rem, 12vw, 8rem);
+      margin-bottom: 1.5rem;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    .start-overlay h2 {
+      font-size: clamp(1.8rem, 5vw, 3.5rem);
+      font-weight: 300;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.5rem;
+      font-family: 'Georgia', serif;
+    }
+
+    .start-overlay p {
+      font-size: clamp(1rem, 2vw, 1.4rem);
+      opacity: 0.7;
+      font-weight: 300;
+      font-family: system-ui, sans-serif;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.08); }
+    }
+
+    @media (max-width: 600px) {
+      .overlay { padding: 6% 5%; }
+      .body-text { max-width: 90%; }
+      .body-text-sm { max-width: 90%; }
+      .countdown { padding: 0.3rem 1.2rem; }
+      .btn-map { padding: 0.5rem 1.6rem; }
+      .music-control {
+        top: 0.8rem;
+        right: 0.8rem;
+        padding: 0.4rem 0.9rem;
+        font-size: 0.7rem;
+      }
+      .start-overlay h2 {
+        font-size: 1.6rem;
+      }
+      .names-row, .names-surnames {
+        gap: 0.8rem;
+      }
+      .name-left, .name-right {
+        font-size: clamp(1.2rem, 4.5vw, 2.2rem);
+      }
+      .surname-left, .surname-right {
+        font-size: clamp(1rem, 3.5vw, 1.8rem);
+      }
+      .names-ampersand {
+        font-size: clamp(1rem, 3.5vw, 1.8rem);
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TAP TO START OVERLAY -->
+  <div class="start-overlay" id="startOverlay">
+    <div class="icon-big">🎵</div>
+    <h2>Tap anywhere to start</h2>
+    <p>Experience the invitation with music</p>
+  </div>
+
+  <!-- MUSIC CONTROL BUTTON -->
+  <button class="music-control" id="musicToggle" aria-label="Toggle music">
+    <span class="icon" id="musicIcon">🔇</span>
+    <span id="musicLabel">Off</span>
+  </button>
+
+  <div class="scroll-wall" id="scrollWall">
+    <div class="wallpaper-wrapper" id="wallpaperWrapper">
+      <img 
+        class="wallpaper" 
+        id="mainImage"
+        src="invitation.png" 
+        alt="wedding invitation background"
+        draggable="false"
+        loading="eager"
+      />
+
+      <div class="overlay">
+        <div class="text-block title-medium" style="margin-top: 22rem;">
+          ✦ You are warmly invited to our wedding celebration. ✦
+        </div>
+
+        <!-- NEW NAME LAYOUT: Eslam & Enas on top, Ahmad & Ibrahim below -->
+        <div class="names-wrapper">
+          <div class="names-row">
+            <span class="name-left">Eslam</span>
+            <span class="name-right">Enas</span>
+          </div>
+          <div class="names-ampersand">&amp;</div>
+          <div class="names-surnames">
+            <span class="surname-left">Ahmad</span>
+            <span class="surname-right">Ibrahim</span>
+          </div>
+        </div>
+
+        <div class="text-block body-text" style="font-style:italic; margin-top:0.2rem;">
+          “Together is a beautiful place to be.”
+        </div>
+
+        <div class="spacer-md"></div>
+
+        <div class="text-block body-text-sm" style="max-width:75%; margin-top: 850px; line-height:1.7;">
+          Two hearts found each other.
+          One promise brought them together.
+          Forever begins today.
+        </div>
+
+        <div class="spacer-md" style="margin-top: 620px;"></div>
+
+        <a href="https://maps.app.goo.gl/zCgQ7Ra85pLHMMda6?g_st=aw" 
+           target="_blank" 
+           rel="noopener noreferrer" 
+           class="btn-map">
+           📍 View location on map
+        </a>
+
+        <div class="spacer-md" style="margin-top: 120px;"></div>
+
+        <div class="text-block date-large">
+          7 August 2026
+        </div>
+
+        <div class="text-block countdown" id="countdownDisplay" style="margin-top: 120px;">
+          loading…
+        </div>
+
+        <div style="flex:1; min-height:1rem;"></div>
+      </div>
+
+      <div class="fallback-msg" style="position:absolute; bottom:20%; left:50%; transform:translateX(-50%); color:#b9a78d; background:#1a1a1f; padding:2rem; border-radius:12px; text-align:center; font-family:sans-serif; pointer-events:none;">
+        ⚠️ invitation.png not found.<br>Please place it in the same folder.
+      </div>
+    </div>
+  </div>
+
+  <div class="scroll-hint">scroll</div>
+
+  <!-- Hidden audio element -->
+  <audio id="bgMusic" loop preload="auto">
+    <source src="sound.mp3" type="audio/mpeg">
+    Your browser does not support the audio element.
+  </audio>
+
+  <script>
+    (function() {
+      // ---- COUNTDOWN ----
+      const targetDate = new Date('2026-08-07T20:00:00').getTime();
+      const countdownEl = document.getElementById('countdownDisplay');
+
+      function updateCountdown() {
+        const now = Date.now();
+        const diff = targetDate - now;
+
+        if (diff <= 0) {
+          countdownEl.textContent = '🎉 It\'s today! 🎉';
+          return;
+        }
+
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+        countdownEl.textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+      }
+
+      updateCountdown();
+      setInterval(updateCountdown, 1000);
+
+      // ---- SCROLL RESET ----
+      const wall = document.getElementById('scrollWall');
+      if (wall) wall.scrollTo(0, 0);
+
+      // ---- IMAGE ERROR FALLBACK ----
+      const img = document.getElementById('mainImage');
+      const wrapper = document.getElementById('wallpaperWrapper');
+      if (img) {
+        img.addEventListener('error', function(e) {
+          console.warn('⚠️ invitation.png not found.');
+          const fb = wrapper.querySelector('.fallback-msg');
+          if (fb) fb.style.display = 'block';
+          wrapper.style.minHeight = '120vh';
+          wrapper.style.minWidth = '100vw';
+          wrapper.style.background = '#1a1a1f';
+          img.style.display = 'none';
+        });
+      }
+
+      // ---- MUSIC PLAYER ----
+      const audio = document.getElementById('bgMusic');
+      const toggleBtn = document.getElementById('musicToggle');
+      const iconSpan = document.getElementById('musicIcon');
+      const labelSpan = document.getElementById('musicLabel');
+      const startOverlay = document.getElementById('startOverlay');
+
+      let isPlaying = false;
+      let audioStarted = false;
+
+      function startAudio() {
+        if (audioStarted) return;
+        
+        audio.play().then(() => {
+          isPlaying = true;
+          audioStarted = true;
+          iconSpan.textContent = '🔊';
+          labelSpan.textContent = 'On';
+          console.log('🎵 Music started');
+          
+          startOverlay.classList.add('hidden');
+          setTimeout(() => {
+            startOverlay.style.display = 'none';
+          }, 800);
+          
+        }).catch((err) => {
+          console.warn('⚠️ Could not start audio:', err);
+          iconSpan.textContent = '🔇';
+          labelSpan.textContent = 'Off';
+        });
+      }
+
+      function toggleMusic() {
+        if (isPlaying) {
+          audio.pause();
+          isPlaying = false;
+          iconSpan.textContent = '🔇';
+          labelSpan.textContent = 'Off';
+          console.log('🔇 Music paused');
+        } else {
+          audio.play().then(() => {
+            isPlaying = true;
+            audioStarted = true;
+            iconSpan.textContent = '🔊';
+            labelSpan.textContent = 'On';
+            console.log('🔊 Music resumed');
+            
+            startOverlay.classList.add('hidden');
+            setTimeout(() => {
+              startOverlay.style.display = 'none';
+            }, 800);
+            
+          }).catch((err) => {
+            console.warn('Could not play audio:', err);
+            iconSpan.textContent = '🔇';
+            labelSpan.textContent = 'Off';
+          });
+        }
+      }
+
+      // ---- OVERLAY CLICK STARTS AUDIO ----
+      startOverlay.addEventListener('click', function(e) {
+        e.stopPropagation();
+        startAudio();
+      });
+
+      // ---- Toggle button listener ----
+      toggleBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        toggleMusic();
+      });
+
+      // ---- BUTTON CLICK TRACKING ----
+      const btn = document.querySelector('.btn-map');
+      if (btn) {
+        btn.addEventListener('click', function(e) {
+          console.log('📍 Map button clicked');
+        });
+      }
+
+      console.log('🎵 Page loaded. Tap the overlay to start music.');
+    })();
+  </script>
+</body>
+</html>
