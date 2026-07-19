@@ -95,7 +95,6 @@
       margin-top: 1rem;
     }
 
-    /* --- NEW: name layout with & between --- */
     .names-wrapper {
       display: flex;
       flex-direction: column;
@@ -318,6 +317,7 @@
       color: #f5efe6;
       text-align: center;
       padding: 2rem;
+      -webkit-tap-highlight-color: transparent;
     }
 
     .start-overlay.hidden {
@@ -384,15 +384,15 @@
 </head>
 <body>
 
-  <!-- TAP TO START OVERLAY -->
-  <div class="start-overlay" id="startOverlay">
+  <!-- TAP TO START OVERLAY - using onclick directly for better GitHub Pages compatibility -->
+  <div class="start-overlay" id="startOverlay" onclick="startAudio()">
     <div class="icon-big">🎵</div>
     <h2>Tap anywhere to start</h2>
     <p>Experience the invitation with music</p>
   </div>
 
   <!-- MUSIC CONTROL BUTTON -->
-  <button class="music-control" id="musicToggle" aria-label="Toggle music">
+  <button class="music-control" id="musicToggle" onclick="toggleMusic()" aria-label="Toggle music">
     <span class="icon" id="musicIcon">🔇</span>
     <span id="musicLabel">Off</span>
   </button>
@@ -406,6 +406,7 @@
         alt="wedding invitation background"
         draggable="false"
         loading="eager"
+        onerror="handleImageError()"
       />
 
       <div class="overlay">
@@ -413,7 +414,6 @@
           ✦ You are warmly invited to our wedding celebration. ✦
         </div>
 
-        <!-- NEW NAME LAYOUT: Eslam & Enas on top, Ahmad & Ibrahim below -->
         <div class="names-wrapper">
           <div class="names-row">
             <span class="name-left">Eslam</span>
@@ -475,8 +475,78 @@
   </audio>
 
   <script>
+    // ---- GLOBAL FUNCTIONS for onclick attributes ----
+    function startAudio() {
+      const audio = document.getElementById('bgMusic');
+      const iconSpan = document.getElementById('musicIcon');
+      const labelSpan = document.getElementById('musicLabel');
+      const startOverlay = document.getElementById('startOverlay');
+      
+      if (audio.dataset.started === 'true') return;
+      
+      audio.play().then(() => {
+        audio.dataset.started = 'true';
+        iconSpan.textContent = '🔊';
+        labelSpan.textContent = 'On';
+        console.log('🎵 Music started');
+        
+        startOverlay.classList.add('hidden');
+        setTimeout(() => {
+          startOverlay.style.display = 'none';
+        }, 800);
+        
+      }).catch((err) => {
+        console.warn('⚠️ Could not start audio:', err);
+        iconSpan.textContent = '🔇';
+        labelSpan.textContent = 'Off';
+      });
+    }
+
+    function toggleMusic() {
+      const audio = document.getElementById('bgMusic');
+      const iconSpan = document.getElementById('musicIcon');
+      const labelSpan = document.getElementById('musicLabel');
+      const startOverlay = document.getElementById('startOverlay');
+      
+      if (audio.paused) {
+        audio.play().then(() => {
+          audio.dataset.started = 'true';
+          iconSpan.textContent = '🔊';
+          labelSpan.textContent = 'On';
+          console.log('🔊 Music resumed');
+          
+          startOverlay.classList.add('hidden');
+          setTimeout(() => {
+            startOverlay.style.display = 'none';
+          }, 800);
+          
+        }).catch((err) => {
+          console.warn('Could not play audio:', err);
+          iconSpan.textContent = '🔇';
+          labelSpan.textContent = 'Off';
+        });
+      } else {
+        audio.pause();
+        iconSpan.textContent = '🔇';
+        labelSpan.textContent = 'Off';
+        console.log('🔇 Music paused');
+      }
+    }
+
+    function handleImageError() {
+      console.warn('⚠️ invitation.png not found.');
+      const wrapper = document.getElementById('wallpaperWrapper');
+      const fb = wrapper.querySelector('.fallback-msg');
+      if (fb) fb.style.display = 'block';
+      wrapper.style.minHeight = '120vh';
+      wrapper.style.minWidth = '100vw';
+      wrapper.style.background = '#1a1a1f';
+      const img = document.getElementById('mainImage');
+      img.style.display = 'none';
+    }
+
+    // ---- COUNTDOWN ----
     (function() {
-      // ---- COUNTDOWN ----
       const targetDate = new Date('2026-08-07T20:00:00').getTime();
       const countdownEl = document.getElementById('countdownDisplay');
 
@@ -503,104 +573,24 @@
       // ---- SCROLL RESET ----
       const wall = document.getElementById('scrollWall');
       if (wall) wall.scrollTo(0, 0);
-
-      // ---- IMAGE ERROR FALLBACK ----
-      const img = document.getElementById('mainImage');
-      const wrapper = document.getElementById('wallpaperWrapper');
-      if (img) {
-        img.addEventListener('error', function(e) {
-          console.warn('⚠️ invitation.png not found.');
-          const fb = wrapper.querySelector('.fallback-msg');
-          if (fb) fb.style.display = 'block';
-          wrapper.style.minHeight = '120vh';
-          wrapper.style.minWidth = '100vw';
-          wrapper.style.background = '#1a1a1f';
-          img.style.display = 'none';
-        });
-      }
-
-      // ---- MUSIC PLAYER ----
-      const audio = document.getElementById('bgMusic');
-      const toggleBtn = document.getElementById('musicToggle');
-      const iconSpan = document.getElementById('musicIcon');
-      const labelSpan = document.getElementById('musicLabel');
-      const startOverlay = document.getElementById('startOverlay');
-
-      let isPlaying = false;
-      let audioStarted = false;
-
-      function startAudio() {
-        if (audioStarted) return;
-        
-        audio.play().then(() => {
-          isPlaying = true;
-          audioStarted = true;
-          iconSpan.textContent = '🔊';
-          labelSpan.textContent = 'On';
-          console.log('🎵 Music started');
-          
-          startOverlay.classList.add('hidden');
-          setTimeout(() => {
-            startOverlay.style.display = 'none';
-          }, 800);
-          
-        }).catch((err) => {
-          console.warn('⚠️ Could not start audio:', err);
-          iconSpan.textContent = '🔇';
-          labelSpan.textContent = 'Off';
-        });
-      }
-
-      function toggleMusic() {
-        if (isPlaying) {
-          audio.pause();
-          isPlaying = false;
-          iconSpan.textContent = '🔇';
-          labelSpan.textContent = 'Off';
-          console.log('🔇 Music paused');
-        } else {
-          audio.play().then(() => {
-            isPlaying = true;
-            audioStarted = true;
-            iconSpan.textContent = '🔊';
-            labelSpan.textContent = 'On';
-            console.log('🔊 Music resumed');
-            
-            startOverlay.classList.add('hidden');
-            setTimeout(() => {
-              startOverlay.style.display = 'none';
-            }, 800);
-            
-          }).catch((err) => {
-            console.warn('Could not play audio:', err);
-            iconSpan.textContent = '🔇';
-            labelSpan.textContent = 'Off';
-          });
-        }
-      }
-
-      // ---- OVERLAY CLICK STARTS AUDIO ----
-      startOverlay.addEventListener('click', function(e) {
-        e.stopPropagation();
-        startAudio();
-      });
-
-      // ---- Toggle button listener ----
-      toggleBtn.addEventListener('click', function(e) {
-        e.stopPropagation();
-        toggleMusic();
-      });
-
-      // ---- BUTTON CLICK TRACKING ----
-      const btn = document.querySelector('.btn-map');
-      if (btn) {
-        btn.addEventListener('click', function(e) {
-          console.log('📍 Map button clicked');
-        });
-      }
-
-      console.log('🎵 Page loaded. Tap the overlay to start music.');
     })();
+
+    // ---- FALLBACK: try autoplay on any click/tap ----
+    document.addEventListener('click', function() {
+      const audio = document.getElementById('bgMusic');
+      if (audio.dataset.started !== 'true' && audio.paused) {
+        startAudio();
+      }
+    }, { once: false });
+    
+    document.addEventListener('touchstart', function() {
+      const audio = document.getElementById('bgMusic');
+      if (audio.dataset.started !== 'true' && audio.paused) {
+        startAudio();
+      }
+    }, { once: false });
+
+    console.log('🎵 Page loaded. Tap the overlay to start music.');
   </script>
 </body>
 </html>
